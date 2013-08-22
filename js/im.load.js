@@ -84,3 +84,9 @@ var AjaxIM, AjaxIMLoadedFunction;
 		AjaxIM.loaded();
 	};
 })();
+var BROWSER = {};
+HTMLNODE = document.getElementsByTagName('head')[0].parentNode;
+/*@cc_on
+ BROWSER.iemode = parseInt(typeof document.documentMode != 'undefined' ? document.documentMode : BROWSER.ie);
+ HTMLNODE.className = 'ie_all ie' + BROWSER.iemode;
+ @*/
