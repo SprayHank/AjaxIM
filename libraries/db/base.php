@@ -1,4 +1,4 @@
-<?php
+<?PHP
 class BaseDatabase {
 	private static $_instance = false;
 

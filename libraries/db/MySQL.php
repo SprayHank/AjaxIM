@@ -1,4 +1,4 @@
-<?php
+<?PHP
 /*
  * Library: MySQL
  * Author: Joshua Gross
