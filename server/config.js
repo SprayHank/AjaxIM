@@ -13,8 +13,8 @@
 // The first item of each array is the port, the second is the host name. If
 // you do not want to specify a host, set it to {{{null}}}.
 exports.ports = {
-    public: [8000, 'localhost'],
-    private: [11998, 'localhost']
+	public: [8000, 'localhost'],
+	private: [11998, 'localhost']
 };
 
 // === {{{ cookie }}} ===
@@ -28,6 +28,6 @@ exports.ports = {
 // cookie itself is set to be stored. If it is less, the user won't be logged
 // back in automatically, as their cookie will have been deleted.
 exports.cookie = {
-    name: 'ajaxim_session',
-    period: 8760
+	name: 'ajaxim_session',
+	period: 8760
 };

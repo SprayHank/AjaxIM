@@ -1,4 +1,4 @@
-<?php
+<?PHP
 // The backend engine library.
 define('DB_ENGINE', 'MySQL');
 
@@ -26,4 +26,3 @@ define('COOKIE_DOMAIN', false);
 // If you're using the NodeJS server, change the below to match
 // your settings.
 $nodejs_memcache_server = array('127.0.0.1', 11998);
-?>
