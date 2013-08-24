@@ -1,4 +1,4 @@
-<?php
+<?PHP
 // = ajaxim.php =
 //
 // **Copyright &copy; 2005 &ndash; 2010 Joshua Gross**\\
@@ -21,8 +21,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
-require_once('config.php');
+define('DS', DIRECTORY_SEPARATOR);
+define('AJAXIM', TRUE);
+define('AJAXIM_ROOT', dirname(__FILE__).'/');
 require_once('libraries/db/base.php');
 require_once('libraries/server/base.php');
 
