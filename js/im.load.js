@@ -15,7 +15,14 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 		md5: null,
 		AjaxIM: null
 	};
-	var haveRequirejs = (typeof define === "function" && define.amd);
+	var isOldIE = !-[1, ];
+	var haveRequirejs = (typeof define === "function" && define.amd) &&
+		require.config({
+			baseUrl: jsfolder,
+			paths: {
+				jquery: 'jquery-' + (isOldIE ? 'i' : 'n') + 'e'
+			}
+		});
 	//console.log(haveRequirejs);
 
 	var tagsrc =
@@ -44,9 +51,6 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 		var dep = dependencies[depPos];
 
 		if(haveRequirejs) {
-			require.config({
-				baseUrl:jsfolder
-			});
 			require([dep[0]], function(v) {
 				AjaxIMENV[dep[3]] = v;
 				loadDep(depPos + 1);
@@ -61,7 +65,8 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 					AjaxIMENV[dep[3]] = v;
 					loadDep(depPos + 1);
 				});
-			});/**/
+			});
+			/**/
 		} else {
 			if(typeof dep[1] === dep[2]) {
 				var newdep = document.createElement('script');
