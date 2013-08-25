@@ -15,13 +15,7 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 		md5: null,
 		AjaxIM: null
 	};
-	var haveRequirejs = (
-		typeof define === "function" &&
-			define.amd &&
-			typeof window['require'] !== 'undefined' &&
-			typeof window['requirejs'] !== 'undefined' &&
-			require === requirejs
-		);
+	var haveRequirejs = (typeof define === "function" && define.amd);
 	//console.log(haveRequirejs);
 
 	var tagsrc =
@@ -50,7 +44,10 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 		var dep = dependencies[depPos];
 
 		if(haveRequirejs) {
-			/*require([dep[0]], function(v) {
+			require.config({
+				baseUrl:jsfolder
+			});
+			require([dep[0]], function(v) {
 				AjaxIMENV[dep[3]] = v;
 				loadDep(depPos + 1);
 			}, function(err) {
@@ -58,13 +55,13 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 				//The error has a list of modules that failed
 				//console.log(err);
 				var failedId = err.requireModules && err.requireModules[0];
-				//console.log(failedId);
+				console.log(failedId);
 				requirejs.undef(failedId);
 				require([jsfolder + dep[0] + '.js'], function(v) {
 					AjaxIMENV[dep[3]] = v;
 					loadDep(depPos + 1);
 				});
-			});*/
+			});/**/
 		} else {
 			if(typeof dep[1] === dep[2]) {
 				var newdep = document.createElement('script');
