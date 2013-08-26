@@ -2102,4 +2102,4 @@
 		registerUsernameTaken: 'The chosen username is already in use; please choose another.',
 		registerUnknown: 'An unknown error occurred. Please try again.'
 	}
-})(jQuery, false);
+})(AjaxIMENV['jQuery'], false);
