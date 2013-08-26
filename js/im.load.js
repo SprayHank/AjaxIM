@@ -13,10 +13,11 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 	};
 	//console.log(haveRequirejs);
 
-	var tagsrc =
-		(thistag = document.getElementsByTagName('script'))[thistag.length - 1].src;
-	var jsfolder = tagsrc.replace(/im.load.js([?].+)?/, '');
-	var imfolder = jsfolder.replace(/js\/$/, '');
+	var thistag,
+		tagsrc =
+		(thistag = document.getElementsByTagName('script'))[thistag.length - 1].src,
+		jsfolder = tagsrc.replace(/im.load.js([?].+)?/, ''),
+		imfolder = jsfolder.replace(/js\/$/, '');
 
 	var nodehost = '';
 
@@ -34,10 +35,9 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 		['sizzle', function(Sizzle){
 			!Sizzle && (Sizzle = window['Sizzle']);
 			window['Sizzle'] = Sizzle;
+			//还原全局对象
 			AjaxIMENV.jQuery = window['jQuery'], window['jQuery'] = _jQuery;
 			AjaxIMENV.Sizzle = window['Sizzle'], window['Sizzle'] = _Sizzle;
-			typeof window['jQuery'] === 'undefined' && delete window['jQuery'];
-			typeof window['Sizzle'] === 'undefined' && delete window['Sizzle'];
 		}, 'undefined', 'Sizzle'],
 		['im', function(){window['AjaxIM']}, 'object', 'AjaxIM']
 	];
@@ -95,7 +95,10 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 		AjaxIM.loaded();
 	};
 
-	var isOldIE = !-[1, ];
+	var isOldIE = !-[1, ],//IE < 9;
+		thistag,
+		html = (thistag = document.createElement('DIV')).innerHTML = '<!--[if IE]><i><![endif]-->',
+		beforeIE10 = !!thistag.getElementsByTagName('I').length;
 
 	if(typeof define === "function" && define.amd) {
 		require.config({
@@ -108,7 +111,6 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 
 	(loadDep = function(depPos) {
 		if(depPos >= dependencies.length) {
-			//还原全局对象
 			init();
 			return;
 		}
