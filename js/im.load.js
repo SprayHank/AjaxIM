@@ -20,21 +20,31 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 
 	var nodehost = '';
 
+	//储存全局对象
+	var _jQuery = window['jQuery'], _Sizzle = window['Sizzle'];
+
 	var dependencies = [
-		['jquery', window['jQuery'], 'undefined', 'jQuery'],
-		['jquery.jsonp', window['jsonp'], 'undefined', 'JSONP'],
-		['jquery.jstore-all-min', window['jstore'], 'undefined', 'jStore'],
-		['jquery.md5', window['md5'], 'undefined', 'md5'],
-		['sizzle', window['Sizzle'], 'undefined', 'Sizzle'],
-		['im', window['AjaxIM'], 'object', 'AjaxIM']
+		['jquery', function (jQuery){
+			!jQuery && (jQuery = window['jQuery']);
+			window['jQuery'] = jQuery.noConflict();
+		}, 'undefined', 'jQuery'],
+		['jquery.jsonp', function(){}, 'undefined', 'JSONP'],
+		['jquery.jstore-all-min', function(){}, 'undefined', 'jStore'],
+		['jquery.md5', function(){}, 'undefined', 'md5'],
+		['sizzle', function(Sizzle){
+			!Sizzle && (Sizzle = window['Sizzle']);
+			window['Sizzle'] = Sizzle;
+			AjaxIMENV.jQuery = window['jQuery'], window['jQuery'] = _jQuery;
+			AjaxIMENV.Sizzle = window['Sizzle'], window['Sizzle'] = _Sizzle;
+			typeof window['jQuery'] === 'undefined' && delete window['jQuery'];
+			typeof window['Sizzle'] === 'undefined' && delete window['Sizzle'];
+		}, 'undefined', 'Sizzle'],
+		['im', function(){window['AjaxIM']}, 'object', 'AjaxIM']
 	];
 
 
 	var loadAndAction = function(env, action) {
-		//
-		if(!action) {
-			action = function() {};
-		}
+		!action && (action = function() {});
 		var newdep = document.createElement('script');
 		newdep.type = 'text/javascript';
 		newdep.src = jsfolder + env + '.js';
@@ -46,7 +56,7 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 				action();
 			}
 		};
-		var head = document.getElementsByTagName('head')[0] || document.documentElement;
+		var head = (document.getElementsByTagName('head')[0] || document.documentElement);
 		head.appendChild(newdep);
 	}
 
@@ -87,9 +97,6 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 
 	var isOldIE = !-[1, ];
 
-	//储存全局对象
-	var _jQuery = window['jQuery'], _Sizzle = window['Sizzle'];
-
 	if(typeof define === "function" && define.amd) {
 		require.config({
 			baseUrl: jsfolder,
@@ -97,50 +104,44 @@ var AjaxIM, AjaxIMLoadedFunction, AjaxIMENV;
 				jquery: 'jquery-' + (isOldIE ? 'i' : 'n') + 'e'
 			}
 		});
-		require(['jquery'], function(jQuery){
-			window['jQuery'] = jQuery;
-		});
-		require([dependencies[1][0]]);
-		require([dependencies[2][0]]);
-		require([dependencies[3][0]]);
-		require([dependencies[4][0]], function(Sizzle){
-			window['Sizzle'] = Sizzle;
-		});
-		require([dependencies[5][0]], function(){
-			init();
-		});
-		/*
-		require([dep[0]], function(v) {
-			AjaxIMENV[dep[3]] = v;
-			loadDep(depPos + 1);
-		}, function(err) {
-			//The errback, error callback
-			//The error has a list of modules that failed
-			//console.log(err);
-			var failedId = err.requireModules && err.requireModules[0];
-			console.log(failedId);
-			requirejs.undef(failedId);
-			require([jsfolder + dep[0] + '.js'], function(v) {
-				AjaxIMENV[dep[3]] = v;
-				loadDep(depPos + 1);
-			});
-		});
-		*/
-	} else {
-		(loadDep = function(depPos) {
-			if(depPos >= dependencies.length) {
-				//还原全局对象
-				AjaxIMENV.jQuery = window['jQuery'], window['jQuery'] = _jQuery;
-				AjaxIMENV.Sizzle = window['Sizzle'], window['Sizzle'] = _Sizzle;
-				init();
-				return;
-			}
-			var dep = dependencies[depPos];
-			loadAndAction(dep[0], function() {
-				loadDep(depPos + 1);
-			});
-		})(0);
 	}
+
+	(loadDep = function(depPos) {
+		if(depPos >= dependencies.length) {
+			//还原全局对象
+			init();
+			return;
+		}
+		var dep = dependencies[depPos];
+		if(typeof define === "function" && define.amd) {
+			require([dep[0]], function(v){
+				dep[1](v);
+				loadDep(depPos + 1);
+			});
+			/*
+			 require([dep[0]], function(v) {
+			 AjaxIMENV[dep[3]] = v;
+			 loadDep(depPos + 1);
+			 }, function(err) {
+			 //The errback, error callback
+			 //The error has a list of modules that failed
+			 //console.log(err);
+			 var failedId = err.requireModules && err.requireModules[0];
+			 console.log(failedId);
+			 requirejs.undef(failedId);
+			 require([jsfolder + dep[0] + '.js'], function(v) {
+			 AjaxIMENV[dep[3]] = v;
+			 loadDep(depPos + 1);
+			 });
+			 });
+			 */
+		} else {
+			loadAndAction(dep[0], function() {
+				dep[1]();
+				loadDep(depPos + 1);
+			});
+		}
+	})(0);
 
 
 })();
