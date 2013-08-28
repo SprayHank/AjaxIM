@@ -24,11 +24,12 @@
 define('DS', DIRECTORY_SEPARATOR);
 define('AJAXIM', TRUE);
 define('AJAXIM_ROOT', dirname(__FILE__).'/');
+require 'libraries/class/CONFIG.class.php';
 require_once('libraries/db/base.php');
 require_once('libraries/server/base.php');
 
 # import the database library
-require_once('libraries/db/' . DB_ENGINE . '.php');
+require_once('libraries/db/' . conf('DB_ENGINE') . '.php');
 $db_class = DB_ENGINE . '_Database';
 
 if (!function_exists('class_alias')) {

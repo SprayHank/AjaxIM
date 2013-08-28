@@ -65,4 +65,14 @@ class CONFIG {
 	}
 }
 
+function conf() {
+	$args = func_get_args();
+	return CONFIG::getconf($args);
+}
+
+function sconf() {
+	$args  = func_get_args();
+	$value = array_pop($args);
+	CONFIG::setconf($args, $value);
+}
 /* end of file:libraries/class/CONFIG.class.php */

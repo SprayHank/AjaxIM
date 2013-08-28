@@ -24,12 +24,10 @@
 // This is the main library for Ajax IM. It encompasses the UI controls,
 // and connecting with the server. It does //not// handle registration or
 // account management.
-
 (function($, _instance) {
 	AjaxIM = function(options, actions) {
 		if(this instanceof AjaxIM) {
 			var self = this;
-
 			// === {{{ defaults }}} ===
 			//
 			// These are the available settings for Ajax IM, and the associated
@@ -74,14 +72,12 @@
 				storeSession: 5, // number of days to store chat data (0 for current session only)
 				checkResume: true
 			};
-
 			// === {{{AjaxIM.}}}**{{{settings}}}** ===
 			//
 			// These are the settings for the IM. If particular options are not specified,
 			// the defaults (see above) will be used. //These options will be defined
 			// upon calling the initialization function, and not set directly.//
 			this.settings = $.extend(defaults, options);
-
 			// === {{{AjaxIM.}}}**{{{actions}}}** ===
 			//
 			// Each individual action that the IM engine can execute is predefined here.
@@ -110,7 +106,6 @@
 				status: this.settings.pollServer + '/status',
 				resume: this.settings.pollServer + '/resume'
 			}, actions);
-
 			var httpRx = new RegExp('^http://', 'i'),
 				slashslashRx = new RegExp('^//', 'i'),
 				queryStrRx = new RegExp('[?](.+)$'),
@@ -119,7 +114,6 @@
 				if(name == 'poll') {
 					if(self.settings.pollType != 'comet')
 						action += (queryStrRx.test(action[1]) ? '&' : '?') + 'callback=?';
-
 					action = ['jsonp', action];
 				} else {
 					action = ['ajax', action];
@@ -132,10 +126,8 @@
 						}
 					}
 				}
-
 				self.actions[name] = action;
 			});
-
 			// We load the theme dynamically based on the passed
 			// settings. If the theme is set to false, we assume
 			// that the user is going to load it himself.
@@ -156,7 +148,6 @@
 				this.themeLoaded = true;
 				setup.apply(this);
 			}
-
 			// Client-side storage for keeping track of
 			// conversation states, active tabs, etc.
 			// The default is flash storage, however, other
@@ -176,7 +167,6 @@
 						return false;
 					}
 				});
-
 				if(this.settings.storageMethod == 'auto') {
 					$.each(['ie', 'html5', 'local', 'flash'], function() {
 						if($.jStore.Availability[this]()) {
@@ -185,15 +175,12 @@
 						}
 					});
 				}
-
 				$.extend($.jStore.defaults, {
 					project: 'im.js',
 					engine: this.settings.storageMethod,
 					flash: this.settings.flashStorage
 				});
-
 				this.storageReady = false;
-
 				if(this.settings.storageMethod == 'flash') {
 					$.jStore.ready(function(engine) {
 						$.jStore.flashReady(function() {
@@ -207,29 +194,24 @@
 						setup.apply(self);
 					});
 				}
-
 				$.jStore.load();
 			} else {
 				this.storageReady = true;
 				setup.apply(this);
 			}
-
 			// Allow a chatbox to me minimized
 			$(document).on('click', '.imjs-chatbox', function(e) {
 				e.preventDefault();
 				return false;
 			});
-
 			$(document).on('click', '.imjs-chatbox .imjs-minimize', function() {
 				$(this).parents('.imjs-chatbox').data('tab').click();
 			});
-
 			// Allow a chatbox to be closed
 			$(document).on('click', '.imjs-chatbox .imjs-close', function() {
 				var chatbox = $(this).parents('.imjs-chatbox');
 				chatbox.data('tab')
 					.data('state', 'closed').css('display', 'none');
-
 				if(self.settings.storageMethod && self.storageReady) {
 					delete self.chatstore[chatbox.data('username')];
 					if(self.storageReady) {
@@ -240,7 +222,6 @@
 					}
 				}
 			});
-
 			// Setup message sending for all chatboxes
 			$(document).on('keydown', '.imjs-chatbox .imjs-input', function(event) {
 				var obj = $(this);
@@ -253,7 +234,6 @@
 						var obj = $(this);
 						self.send(obj.parents('.imjs-chatbox').data('username'), obj.val());
 					}
-
 					var obj = $(this);
 					obj.val('');
 					obj.height(obj.data('height'));
@@ -265,22 +245,17 @@
 					obj.height(this.scrollHeight);
 				}
 			});
-
 			$(document).on('click', '.imjs-msglog', function() {
 				var chatbox = $(this).parents('.imjs-chatbox');
 				chatbox.find('.imjs-input').focus();
 			});
-
 			// Create a chatbox when a buddylist item is clicked
 			$(document).on('click', '.imjs-friend', function() {
 				var chatbox = self._createChatbox($(this).data('friend'));
-
 				if(chatbox.data('tab').data('state') != 'active')
 					chatbox.data('tab').click();
-
 				chatbox.find('.imjs-input').focus();
 			});
-
 			// Setup and hide the scrollers
 			$('.imjs-scroll').css('display', 'none');
 			$(document).on('click', '#imjs-scroll-left', function() {
@@ -290,13 +265,11 @@
 						return $(this).data('state') != 'closed'
 					})
 					.not('.imjs-default').slice(-1).css('display', '');
-
 				if(hiddenTab.length) {
 					$('#imjs-bar li.imjs-tab:visible').eq(0).css('display', 'none');
 					$(this).html(parseInt($(this).html()) - 1);
 					$('#imjs-scroll-right').html(parseInt($('#imjs-scroll-right').html()) + 1);
 				}
-
 				return false;
 			});
 			$(document).on('click', '#imjs-scroll-right', function() {
@@ -306,29 +279,23 @@
 						return $(this).data('state') != 'closed'
 					})
 					.not('.imjs-default').slice(-1).css('display', '');
-
 				if(hiddenTab.length) {
 					$('#imjs-bar li.imjs-tab:visible').slice(-1).css('display', 'none');
 					$(this).html(parseInt($(this).html()) - 1);
 					$('#imjs-scroll-left').html(parseInt($('#imjs-scroll-left').html()) + 1);
 				}
-
 				return false;
 			});
-
 			// Initialize the chatbox hash
 			this.chats = {};
-
 			// Try to resume any existing session
 			this.resume();
-
 			$(window).resize(function() {
 				self.bar._scrollers();
 			});
 		} else
 			return AjaxIM.init(options);
 	};
-
 	// We predefine all public functions here...
 	// If they are called before everything (theme, storage engine) has loaded,
 	// then they get put into a "prequeue" and run when everything *does*
@@ -346,7 +313,6 @@
 		settings: {},
 		friends: {},
 		chats: {},
-
 		storage: empty.apply('storage'),
 		login: empty.apply('login'),
 		logout: empty.apply('logout'),
@@ -366,14 +332,11 @@
 			_scrollers: empty.apply('bar._scrollers')
 		}
 	});
-
 	setup = (function() {
 	var self = this;
 	if(!this.storageReady || !this.themeLoaded) return;
-
 	$(self).trigger('loadComplete');
 	$(window).resize();
-
 	$.extend(AjaxIM.prototype, {
 		// == Cookies ==
 		//
@@ -397,7 +360,6 @@
 				} else var expires = "";
 				document.cookie = name + "=" + $.compactJSON(value) + expires + "; path=/";
 			},
-
 			// === {{{AjaxIM.}}}**{{{cookies.get(name)}}}** ===
 			//
 			// Gets a cookie, decoding the JSON value before returning the data.
@@ -417,7 +379,6 @@
 				}
 				return null;
 			},
-
 			// === {{{AjaxIM.}}}**{{{cookies.erase(name)}}}** ===
 			//
 			// Deletes a cookie.
@@ -427,9 +388,7 @@
 				self.cookies.set(name, '', -1);
 			}
 		},
-
 		// == Main ==
-
 		// === {{{AjaxIM.}}}**{{{storage()}}}** ===
 		//
 		// Retrieves chat session data from whatever storage engine is enabled
@@ -438,14 +397,12 @@
 		// This function is called //automatically//, upon initialization of the IM engine.
 		storage: function() {
 			if(!self.storeKey.length) return;
-
 			try {
 				var chatstore = $.jStore.store(self.storeKey + 'chats') || {};
 			} catch(e) {
 				$.jStore.remove(self.storeKey + 'chats');
 				var chatstore = {};
 			}
-
 			if(this.chatstore) {
 				$.each(this.chatstore, function(username, convo) {
 					if(username in chatstore)
@@ -453,33 +410,26 @@
 					else
 						chatstore[username] = self.chatstore[username];
 				});
-
 				this.chatstore = chatstore;
 				$.jStore.store(self.storeKey + 'chats', chatstore);
 			} else {
 				this.chatstore = chatstore;
 			}
-
 			$.each(this.chatstore, function(username, convo) {
 				if(!convo.length) return;
-
 				var chatbox = self._createChatbox(username, true);
 				chatbox.data('lastDateStamp', null).css('display', 'none');
-
 				// Remove the automatic date stamp
 				chatbox.find('.imjs-msglog').empty();
-
 				// Restore all messages, date stamps, and errors
 				$.each(convo, function() {
 					switch(this[0]) {
 						case 'error':
 							self._addError(chatbox, decodeURIComponent(this[2]), this[3]);
 						break;
-
 						case 'datestamp':
 							self._addDateStamp(chatbox, this[3]);
 						break;
-
 						case 'a':
 						case 'b':
 							self._addMessage(this[0], chatbox, this[1],
@@ -487,10 +437,8 @@
 						break;
 					}
 				});
-
 				$(self).trigger('chatRestored', [username, chatbox]);
 			});
-
 			var activeTab = $.jStore.store(self.storeKey + 'activeTab') || [];
 			if(activeTab.length && (activeTab = activeTab[0]) && activeTab in this.chats) {
 				this.chats[activeTab].data('tab').click();
@@ -498,7 +446,6 @@
 				msglog[0].scrollTop = msglog[0].scrollHeight;
 			}
 		},
-
 		// === {{{AjaxIM.}}}**{{{login(username, password)}}}** ===
 		//
 		// Authenticates a user and initializes the IM engine. If the user is
@@ -518,13 +465,10 @@
 		login: function(username, password) {
 			if(!username) username = '';
 			if(!password) password = '';
-
 			if(this.username)
 				return true; // Already logged in!
-
 			// hash password before sending it to the server
 			password = $.md5(password);
-
 			// authenticate
 			AjaxIM.request(
 				this.actions.login,
@@ -532,32 +476,25 @@
 				function(auth) {
 					if(auth.r == 'logged in') {
 						self.username = ('u' in auth ? auth.u : username);
-
 						if(self.settings.storageMethod)
 							self.storeKey = [self.storageBrowserKey, self.username, ''].join('-');
-
 						var existing = self.cookies.get(self.settings.cookieName);
 						self.storage();
-
 						// Begin the session
 						$.each(auth.f, function() {
 							self.friends[this.u] = {status: [this.s, ''], group: this.g};
 						});
 						self._session(self.friends);
 						self._storeFriends();
-
 						$(self).trigger('loginSuccessful', [auth]);
-
 						return auth;
 					} else {
 						$(self).trigger('loginError', [auth]);
 					}
-
 					return false;
 				}
 			);
 		},
-
 		// === {{{AjaxIM.}}}**{{{logout()}}}** ===
 		//
 		// Logs the user out and removes his/her session cookie. As well, it
@@ -580,7 +517,6 @@
 				}
 			);
 		},
-
 		// === {{{AjaxIM.}}}**{{{resume()}}}** ===
 		//
 		// Resumes an existing session based on a session ID stored in the
@@ -589,12 +525,9 @@
 		// should a session already exist.
 		resume: function() {
 			var session = this.cookies.get(this.settings.cookieName);
-
 			if(session && session.sid) {
 				this.username = session.user;
-
 				this.storeKey = [this.storageBrowserKey, this.username, ''].join('-');
-
 				var friends = $.jStore.store(this.storeKey + 'friends') || [];
 				if(self.settings.checkResume) {
 					AjaxIM.request(
@@ -619,7 +552,6 @@
 				$(self).trigger('noSession');
 			}
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_session(friends)}}}** ===
 		//
 		// Restores session data (username, friends) and begins polling the server.
@@ -634,17 +566,13 @@
 		_session: function(friends) {
 			$('#imjs-friends-panel .imjs-header span').html(this.username);
 			$('#imjs-friends').removeClass('imjs-not-connected');
-
 			$.each(friends, function(friend, info) {
 				self.addFriend.apply(self, [friend, info.status, info.group]);
 			});
 			self._storeFriends();
-
 			$(self).trigger('sessionResumed', [this.username]);
-
 			setTimeout(function() { self.poll(); }, 0);
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_clearSession()}}}** ===
 		//
 		// Clears all session data from the last known user.
@@ -654,14 +582,11 @@
 				$.jStore.remove(self.storeKey + 'friends');
 				$.jStore.remove(self.storeKey + 'activeTab');
 			}
-
 			self.chats = {};
 			$('.imjs-tab').not('.imjs-tab.imjs-default').remove();
-
 			self.cookies.erase('ajaxim_session');
 			delete self.username;
 		},
-
 		// === {{{AjaxIM.}}}**{{{form(element)}}}** ===
 		//
 		// Loads a login and registration form into the specified element
@@ -670,7 +595,6 @@
 		form: function(element) {
 			$(element).load(this.settings.theme + '/theme.html #imjs-lr', function() {
 				$('#imjs-lr .error').hide();
-
 				if(self.username) {
 					$('#imjs-register, #imjs-login fieldset').hide();
 					$('#imjs-logged-in')
@@ -679,12 +603,10 @@
 				} else {
 					$('#imjs-logged-in').hide();
 				}
-
 				// Handle logout success
 				$(self).bind('logoutSuccessful', function() {
 					$('#imjs-login fieldset').slideDown();
 					$('#imjs-register').slideDown();
-
 					$('#imjs-logged-in')
 						.html($('#imjs-logged-in strong').html('{username}'))
 						.slideUp();
@@ -693,7 +615,6 @@
 					self.logout();
 					return false;
 				});
-
 				// Handle login error or success
 				$(self).bind('loginError', function() {
 					$('#imjs-login .error').html(AjaxIM.i18n.authInvalid).slideDown('fast');
@@ -703,7 +624,6 @@
 				}).bind('loginSuccessful', function() {
 					$('#imjs-login fieldset').slideUp();
 					$('#imjs-register').slideUp();
-
 					$('#imjs-logged-in')
 						.html($('#imjs-logged-in').html().replace('{username}', self.username))
 						.slideDown();
@@ -714,7 +634,6 @@
 				};
 				$('#imjs-login').submit(login);
 				$('#imjs-login-submit').click(login);
-
 				var regIssues = false;
 				var regError = function(error, fields) {
 					$('#imjs-register .error')
@@ -725,25 +644,18 @@
 						.blur(function() { $(this).removeClass('imjs-lr-error'); });
 					regIssues = true;
 				};
-
 				var register = function() {
 					$('#imjs-register .error').empty();
-
 					regIssues = false;
-
 					var username = $('#imjs-register-username').val();
 					var password = $('#imjs-register-password').val();
-
 					if(password.length < 4)
 						regError('PasswordLength', '#imjs-register-password');
-
 					if(password != $('#imjs-register-cpassword').val())
 						regError('PasswordMatch', '#imjs-register-password, #imjs-register-cpassword');
-
 					if(username.length <= 2 ||
 						!$('#imjs-register-username').val().match(/^[A-Za-z0-9_.]+$/))
 						regError('UsernameLength', '#imjs-register-username');
-
 					if(!regIssues) {
 						AjaxIM.request(
 							self.actions.register,
@@ -756,15 +668,12 @@
 										case 'unknown':
 											regError('Unknown', '');
 										break;
-
 										case 'invalid password':
 											regError('PasswordLength', '#imjs-register-password');
 										break;
-
 										case 'invalid username':
 											regError('UsernameLength', '#imjs-register-username');
 										break;
-
 										case 'username taken':
 											regError('UsernameTaken', '#imjs-register-username');
 										break;
@@ -776,14 +685,12 @@
 							}
 						);
 					}
-
 					return false;
 				};
 				$('#imjs-register').submit(register);
 				$('#imjs-register-submit').click(register);
 			});
 		},
-
 		// === {{{AjaxIM.}}}**{{{poll()}}}** ===
 		//
 		// Queries the server for new messages. If a 'long' or 'short' poll
@@ -799,7 +706,6 @@
 						if(!response['e']) {
 							if(response.length)
 								self._parseMessages(response);
-
 							setTimeout(function() { self.poll(); }, 0);
 						} else {
 							switch(response.e) {
@@ -807,7 +713,6 @@
 									self._notConnected();
 								break;
 							}
-
 							$(self).trigger('pollFailed', [response.e]);
 						}
 					},
@@ -821,7 +726,6 @@
 				this.comet.connect();
 			}
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_parseMessages(messages)}}}** ===
 		//
 		// Handles an incoming message array:\\
@@ -845,12 +749,10 @@
 			if($.isArray(messages)) {
 				$.each(messages, function() {
 					$(self).trigger('parseMessage', [this]);
-
 					switch(this.t) {
 						case 'm':
 							self.incoming(this.s, this.m);
 						break;
-
 						case 's':
 							var status = this.m.split(':');
 							if(this['g'])
@@ -858,17 +760,14 @@
 							self._friendUpdate(this.s, status[0], status.slice(1).join(':'));
 							self._storeFriends();
 						break;
-
 						case 'b':
 						break;
-
 						default:
 						break;
 					}
 				});
 			}
 		},
-
 		// === {{{AjaxIM.}}}**{{{incoming(from, message)}}}** ===
 		//
 		// Handles a new message from another user. If a chatbox for that
@@ -885,17 +784,14 @@
 			// TODO: If friend is not on the buddylist,
 			// should add them to a temp list?
 			var chatbox = this._createChatbox(from);
-
 			if(!$('#imjs-bar .imjs-selected').length) {
 				chatbox.data('tab').click();
 			} else if(chatbox.data('tab').data('state') != 'active') {
 				this.bar.notification(chatbox.data('tab'));
 			}
-
 			var time = this._addMessage('b', chatbox, from, message);
 			this._storeMessage('b', chatbox, from, message, time);
 		},
-
 		// === {{{AjaxIM.}}}**{{{addFriend(username, group)}}}** ===
 		//
 		// Inserts a new friend into the friends list. If the group specified
@@ -910,22 +806,17 @@
 			var status_name = 'available';
 			$.each(this.statuses,
 				function(key, val) { if(status[0] == val) { status_name = key; return false; } });
-
 			var group_id = 'imjs-group-' + $.md5(group);
-
 			if(!(group_item = $('#' + group_id)).length) {
 				var group_item = $('.imjs-friend-group.imjs-default').clone()
 						.removeClass('imjs-default')
 						.attr('id', group_id)
 						.data('group', group)
 						.appendTo('#imjs-friends-list');
-
 				var group_header = group_item.find('.imjs-friend-group-header');
 				group_header.html(group_header.html().replace('{group}', group));
 			}
-
 			var user_id = 'imjs-friend-' + $.md5(username + group);
-
 			if(!$('#' + user_id).length) {
 				var user_item = group_item.find('ul li.imjs-default').clone()
 						.removeClass('imjs-default')
@@ -936,14 +827,10 @@
 				if(status[0] == 0) user_item.hide();
 				user_item.html(user_item.html().replace('{username}', username));
 			}
-
 			this.friends[username] = {'status': status, group: group};
-
 			this._updateFriendCount();
-
 			return this.friends[username];
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_updateFriendCount()}}}** ===
 		//
 		// Counts the number of online friends and updates the friends count
@@ -956,7 +843,6 @@
 			}
 			$('#imjs-friends .imjs-tab-text span span').html(friendsLength);
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_storeFriends()}}}** ===
 		//
 		// If a storage method is enabled, the current state of the
@@ -965,7 +851,6 @@
 			if(this.settings.storageMethod && this.storageReady)
 				$.jStore.store(this.storeKey + 'friends', this.friends);
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_createChatbox(username)}}}** ===
 		//
 		// Builds a chatbox based on the default chatbox HTML and CSS defined
@@ -991,29 +876,22 @@
 				var tab = this.bar.addTab(username, '#' + chatbox_id);
 				var chatbox = tab.find('.imjs-chatbox');
 				chatbox.attr('id', chatbox_id);
-
 				chatbox.data('tab', tab);
-
 				// remove default items from the message log
 				var message_log = chatbox.find('.imjs-msglog').empty();
-
 				// setup the chatbox header
 				var cb_header = chatbox.find('.imjs-header');
 				cb_header.html(cb_header.html().replace('{username}', username));
-
 				if(!no_stamp) {
 					// add a date stamp
 					var time = this._addDateStamp(chatbox);
 					this._storeNonMessage('datestamp', username, null, time);
 				}
-
 				// associate the username with the object and vice-versa
 				this.chats[username] = chatbox;
 				chatbox.data('username', username);
-
 				// did this chatbox fall down?
 				this.bar._scrollers();
-
 				if(username in this.friends) {
 					status = this.friends[username].status;
 					var status_name = 'available';
@@ -1021,34 +899,28 @@
 						function(key, val) { if(status[0] == val) { status_name = key; return false; } });
 					tab.addClass('imjs-' + status_name);
 				}
-
 				// store inputbox height
 				//var input = chatbox.find('.imjs-input');
 				//input.data('height', input.height());
 			} else if(chatbox.data('tab').data('state') == 'closed') {
 				chatbox.find('.imjs-msglog > *').addClass('imjs-msg-old');
-
 				var tab = chatbox.data('tab');
 				if(tab.css('display') == 'none')
 					tab.css('display', '').removeClass('imjs-selected')
 						.appendTo('#imjs-bar');
-
 				if(!no_stamp) {
 					// possibly add a date stamp
 					var time = this._addDateStamp(chatbox);
 					this._storeNonMessage('datestamp', username, null, time);
 				}
-
 				if(!$('#imjs-bar .imjs-selected').length) {
 					tab.click();
 				} else {
 					this.bar.notification(tab);
 				}
 			}
-
 			return chatbox;
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_addDateStamp(chatbox)}}}** //
 		//
 		// Adds a date/time notifier to a chatbox. These are generally
@@ -1066,27 +938,22 @@
 			var message_log = $(chatbox).find('.imjs-msglog');
 			if(!time)
 			   time = (new Date()).getTime();
-
 			var date_stamp = $('.imjs-tab.imjs-default .imjs-chatbox .imjs-msglog .imjs-date').clone();
 			var date_stamp_time = date_stamp.find('.imjs-msg-time');
 			if(date_stamp_time.length)
 				date_stamp_time.html(AjaxIM.dateFormat(time, date_stamp_time.html()));
-
 			var date_stamp_date = date_stamp.find('.imjs-date-date');
 			var formatted_date = AjaxIM.dateFormat(time, date_stamp_date.html());
 			if(chatbox.data('lastDateStamp') != formatted_date) {
 				if(date_stamp_date.length)
 					date_stamp_date.html(AjaxIM.dateFormat(time, date_stamp_date.html()));
-
 				chatbox.data('lastDateStamp', formatted_date);
 				date_stamp.appendTo(message_log);
 			} else {
 				//$('<div></div>').appendTo(message_log);
 			}
-
 			return time;
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_addError(chatbox, error)}}}** //
 		//
 		// Adds an error to a chatbox. These are generally inserted after
@@ -1102,23 +969,18 @@
 		// computer time will be used.
 		_addError: function(chatbox, error, time) {
 			var message_log = $(chatbox).find('.imjs-msglog');
-
 			var error_item =
 				$('.imjs-tab.imjs-default .imjs-chatbox .imjs-msglog .imjs-error').clone();
-
 			var error_item_time = error_item.find('.imjs-msg-time');
 			if(error_item_time.length) {
 				if(!time)
 					time = (new Date()).getTime();
 				error_item_time.html(AjaxIM.dateFormat(time, error_item_time.html()));
 			}
-
 			error_item.find('.imjs-error-error').html(error);
 			error_item.appendTo(message_log);
-
 			message_log[0].scrollTop = message_log[0].scrollHeight;
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_addMessage(ab, chatbox, username, message, time)}}}** //
 		//
 		// Adds a message to a chatbox. Depending on the {{{ab}}} value,
@@ -1147,50 +1009,38 @@
 				var message_container = (last_message.hasClass('imjs-msg-' + ab + '-container') ?
 					last_message :
 					last_message.find('.imjs-msg-' + ab + '-container'));
-
 				var single_message =
 					$('.imjs-tab.imjs-default .imjs-chatbox .imjs-msglog .imjs-msg-' + ab + '-msg')
 					.clone().appendTo(message_container);
-
 				single_message.html(single_message.html().replace('{username}', username));
 			} else if(!last_message.length || !last_message.hasClass('imjs-msg-' + ab)) {
 				var message_group = $('.imjs-tab.imjs-default .imjs-chatbox .imjs-msg-' + ab)
 					.clone().appendTo(chatbox.find('.imjs-msglog'));
 				message_group.html(message_group.html().replace('{username}', username));
-
 				var single_message = message_group.find('.imjs-msg-' + ab + '-msg');
 			}
-
 			// clean up the message
 			message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 						.replace(/(^|.*)\*([^*]+)\*(.*|$)/, '$1<strong>$2</strong>$3');
-
 			// autolink URLs
 			message = message.replace(
 				new RegExp('([A-Za-z][A-Za-z0-9+.-]{1,120}:[A-Za-z0-9/]' +
 				'(([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2}){1,333}' +
 				'(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]{0,1000}))?)', 'g'),
 				'<a href="$1" target="_blank">$1</a>');
-
 			// insert the message
 			single_message.html(single_message.html().replace('{message}', message));
-
 			// set the message time
 			var msgtime = single_message.find('.imjs-msg-time');
 			if(!time)
 				time = new Date();
-
 			if(typeof time != 'string')
 				time = AjaxIM.dateFormat(time, msgtime.html());
-
 			msgtime.html(time);
-
 			var msglog = chatbox.find('.imjs-msglog');
 			msglog[0].scrollTop = msglog[0].scrollHeight;
-
 			return time;
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_storeNonMessage(type, username, data, time)}}}** ===
 		//
 		// **Redundant?**\\
@@ -1207,20 +1057,16 @@
 			if(this.settings.storageMethod) {
 				if(!this.chatstore) this.chatstore = {};
 				if(!(username in this.chatstore)) this.chatstore[username] = [];
-
 				// If the chat store gets too long, it becomes slow to load.
 				if(this.chatstore[username].length > 300)
 					this.chatstore[username].shift();
-
 				// For some reason, if we don't encode and decode the message, it *will* break
 				// (at least) the Flash storage engine's retrieval. Gah!
 				this.chatstore[username].push(
 					[type, username, encodeURIComponent(data), time]);
-
 				if(this.storageReady) $.jStore.store(self.storeKey + 'chats', this.chatstore);
 			}
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_storeMessage(ab, chatbox, username, message, time)}}}** ===
 		//
 		// Taking the same arguments as {{{AjaxIM._addMessage}}}, {{{_storeMessage}}} pushes a message
@@ -1232,25 +1078,20 @@
 			// If storage is on & ready, store the message
 			if(this.settings.storageMethod) {
 				if(!this.chatstore) this.chatstore = {};
-
 				message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
 				if(!(username in this.chatstore)) {
 					this.chatstore[username] = [];
 				} else if(this.chatstore[username].length > 300) {
 					// If the chat store gets too long, it becomes slow to load.
 					this.chatstore[username].shift();
 				}
-
 				// For some reason, if we don't encode and decode the message, it *will* break
 				// (at least) the Flash storage engine's retrieval. Gah!
 				this.chatstore[chatbox.data('username')].push(
 					[ab, username, encodeURIComponent(message), time]);
-
 				if(this.storageReady) $.jStore.store(this.storeKey + 'chats', this.chatstore);
 			}
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_friendUpdate(friend, status, statusMessage)}}}** ===
 		//
 		// Called when a friend's status is updated. This function will update all locations
@@ -1269,49 +1110,39 @@
 			var status_name = 'available';
 			$.each(this.statuses,
 				function(key, val) { if(status == val) { status_name = key; return false; } });
-
 			if(this.chats[friend]) {
 				var tab = this.chats[friend].data('tab');
 				var tab_class = 'imjs-tab';
 				if(tab.data('state') == 'active') tab_class += ' imjs-selected';
 				tab_class += ' imjs-' + status_name;
-
 				tab.attr('class', tab_class);
-
 				// display the status in the chatbox
 				var date_stamp =
 					$('.imjs-tab.imjs-default .imjs-chatbox .imjs-msglog .imjs-date').clone();
-
 				var date_stamp_time = date_stamp.find('.imjs-msg-time');
 				if(date_stamp_time.length)
 					date_stamp_time.html(AjaxIM.dateFormat(date_stamp_time.html()));
-
 				var date_stamp_date = date_stamp.find('.imjs-date-date').html(
 					AjaxIM.i18n[
 						'chat' + status_name[0].toUpperCase() + status_name.slice(1)
 					].replace(/%s/g, friend));
-
 				var msglog = this.chats[friend].find('.imjs-msglog');
 				date_stamp.appendTo(msglog);
 				msglog[0].scrollTop = msglog[0].scrollHeight;
 			}
-
 			if(this.friends[friend]) {
 				var friend_id = 'imjs-friend-' + $.md5(friend + this.friends[friend].group);
 				$('#' + friend_id).attr('class', 'imjs-friend imjs-' + status_name);
-
 				if(status == 0) {
 					$('#' + friend_id + ':visible').slideUp();
 					$('#' + friend_id + ':hidden').hide();
 				} else if(!$('#' + friend_id + ':visible').length) {
 					$('#' + friend_id).slideDown();
 				}
-
 				this.friends[friend].status = [status, statusMessage];
 				this._updateFriendCount();
 			}
 		},
-
 		// === //private// {{{AjaxIM.}}}**{{{_notConnected()}}}** ===
 		//
 		// Puts the user into a visible state of disconnection. Sets the
@@ -1320,7 +1151,6 @@
 		_notConnected: function() {
 			$('#imjs-friends').addClass('imjs-not-connected').unbind('click', this.activateTab);
 		},
-
 		// === {{{AjaxIM.}}}**{{{send(to, message)}}}** ===
 		//
 		// Sends a message to another user. The message will be added
@@ -1341,18 +1171,14 @@
 		// * {{{message}}} is the content to be sent.
 		send: function(to, message) {
 			if(!message) return;
-
 			if(this.chats[to]) { // REMOVE ME?
 				// possibly add a datestamp
 				var time = self._addDateStamp(this.chats[to]);
 				this._storeNonMessage('datestamp', to, null, time);
-
 				time = this._addMessage('a', this.chats[to], this.username, message);
 				this._storeMessage('a', this.chats[to], this.username, message, time);
 			}
-
 			$(self).trigger('sendingMessage', [to, message]);
-
 			AjaxIM.request(
 				this.actions.send,
 				{'to': to, 'message': message},
@@ -1361,11 +1187,9 @@
 						case 'ok':
 							$(self).trigger('sendMessageSuccessful', [to, message]);
 						break;
-
 						case 'offline':
 							$(self).trigger('sendMessageFailed', ['offline', to, message]);
 						break;
-
 						case 'error':
 						default:
 							if(result.e == 'no session found') {
@@ -1374,7 +1198,6 @@
 								self._storeNonMessage('error', to,
 									AjaxIM.i18n.notConnected, (new Date()).getTime());
 							}
-
 							$(self).trigger('sendMessageFailed', [result.e, to, message]);
 						break;
 					}
@@ -1384,12 +1207,10 @@
 					self._addError(self.chats[to], AjaxIM.i18n.notConnected);
 					self._storeNonMessage('error', to,
 						AjaxIM.i18n.notConnected, (new Date()).getTime());
-
 					$(self).trigger('sendMessageFailed', ['not connected', to, message]);
 				}
 			);
 		},
-
 		// === {{{AjaxIM.}}}**{{{status(s, message)}}}** ===
 		//
 		// Sets the user's status and status message. It is possible to not
@@ -1404,11 +1225,8 @@
 			// update status icon(s)
 			if(!this.statuses[s])
 				return;
-
 			$('#imjs-friends').attr('class', 'imjs-' + s);
-
 			$(self).trigger('changingStatus', [s, message]);
-
 			AjaxIM.request(
 				this.actions.status,
 				{'status': this.statuses[s], 'message': message},
@@ -1417,7 +1235,6 @@
 						case 'ok':
 							$(self).trigger('changeStatusSuccessful', [s, message]);
 						break;
-
 						case 'error':
 						default:
 							$(self).trigger('changeStatusFailed', [result.e, s, message]);
@@ -1429,7 +1246,6 @@
 				}
 			);
 		},
-
 		// === {{{AjaxIM.}}}**{{{statuses}}}** ===
 		//
 		// These are the available status codes and their associated identities:
@@ -1447,7 +1263,6 @@
 		// user to contact others; no status message or notice will be sent to others
 		// messaging this user.
 		statuses: {offline: 0, available: 1, away: 2, invisible: 3},
-
 		// == Footer bar ==
 		//
 		// The footer bar is the bar that sits at the bottom of the page, in a fixed
@@ -1463,10 +1278,8 @@
 				// Set up your standard tab actions
 				$(document)
 					.on('click', '.imjs-tab', this.activateTab);
-
 				$(document)
 					.on('click', '.imjs-tab .imjs-close', this.closeTab);
-
 				// Set up the friends list actions
 				var self = this;
 				$(document).click(function(e) {
@@ -1474,7 +1287,6 @@
 						$(e.target).parents('#imjs-friends').length) {
 						return;
 					}
-
 					if($('#imjs-friends').data('state') == 'active')
 						self.activateTab.call($('#imjs-friends'));
 				});
@@ -1490,13 +1302,11 @@
 						if($(this).hasClass('imjs-not-connected')) {
 							$('.imjs-tooltip').css('display', 'block');
 							$('.imjs-tooltip p').html(AjaxIM.i18n.notConnectedTip);
-
 							var tip_left = $(this).offset().left -
 								$('.imjs-tooltip').outerWidth() +
 								($(this).outerWidth() / 2);
 							var tip_top = $(this).offset().top -
 								$('.imjs-tooltip').outerHeight(true);
-
 							$('.imjs-tooltip').css({
 									left: tip_left,
 									top: tip_top
@@ -1512,7 +1322,6 @@
 					.data('tab', $('#imjs-friends'))
 					.css('display', 'none');
 			},
-
 			// === {{{AjaxIM.}}}**{{{bar.activateTab()}}}** ===
 			//
 			// Activate a tab by setting it to the 'active' state and
@@ -1522,7 +1331,6 @@
 			// //Note:// {{{this}}}, here, refers to the tab DOM element.
 			activateTab: function() {
 				var chatbox = $(this).find('.imjs-chatbox') || false;
-
 				if($(this).data('state') != 'active') {
 					if($(this).attr('id') != 'imjs-friends') {
 						$('#imjs-bar > li')
@@ -1538,51 +1346,39 @@
 								}
 							});
 					}
-
 					if(chatbox && chatbox.css('display') == 'none')
 						chatbox.css('display', '');
-
 					// set the tab to active...
 					var tab = $(this).addClass('imjs-selected').data('state', 'active');
-
 					// ...and hide and reset the notification icon
 					tab.find('.imjs-notification').css('display', 'none')
 						.data('count', 0);
-
 					if(self.settings.storageMethod && self.storageReady &&
 						chatbox && (username = chatbox.data('username'))) {
 						$.jStore.store(self.storeKey + 'activeTab', [username]);
 					}
-
 					$(self).trigger('tabToggled', ['activated', tab]);
 				} else {
 					var tab = $(this).removeClass('imjs-selected').data('state', 'minimized');
-
 					if(chatbox && chatbox.css('display') != 'none')
 						chatbox.css('display', 'none');
-
 					if(self.settings.storageMethod && self.storageReady) {
 						$.jStore.store(self.storeKey + 'activeTab', ['*']);
 					}
-
 					$(self).trigger('tabToggled', ['minimized', tab]);
 				}
-
 				if(chatbox) {
 					if(!(input = chatbox.find('.imjs-input')).data('height')) {
 						// store the height for resizing later
 						input.data('height', input.height());
 					}
-
 					try {
 						var msglog = chatbox.find('.imjs-msglog');
 						msglog[0].scrollTop = msglog[0].scrollHeight;
 					} catch(e) {}
-
 					try { chatbox.find('.imjs-input').focus(); } catch(e) {}
 				}
 			},
-
 			// === {{{AjaxIM.}}}**{{{bar.closeTab()}}}** ===
 			//
 			// Close a tab and hide any related chatbox, such that
@@ -1593,19 +1389,14 @@
 			closeTab: function() {
 				var tab = $(this).parents('.imjs-tab');
 				tab.css('display', 'none').data('state', 'closed');
-
 				if(self.settings.storageMethod && self.storageReady) {
 					delete self.chatstore[tab.find('.imjs-chatbox').data('username')];
 					if(self.storageReady) $.jStore.store(self.storeKey + 'chats', self.chatstore);
 				}
-
 				$(self).trigger('tabToggled', ['closed', tab]);
-
 				self.bar._scrollers();
-
 				return false;
 			},
-
 			// === {{{AjaxIM.}}}**{{{bar.addTab(label, action, closable)}}}** ===
 			//
 			// Adds a tab to the tab bar, with the label {{{label}}}. When
@@ -1628,26 +1419,21 @@
 					.attr('id', 'imjs-tab-' + $.md5(label))
 					.html(tab.html().replace('{label}', label))
 					.data('state', 'minimized');
-
 				var notification = tab.find('.imjs-notification');
 				notification.css('display', 'none')
 					.data('count', 0)
 					.data('default-text', notification.html())
 					.html(notification.html().replace('{count}', '0'));
-
 				if(closable === false)
 					tab.find('.imjs-close').eq(0).remove();
-
 				if(typeof action == 'string') {
 					//tab.data('chatbox', action);
 				} else {
 					tab.find('.imjs-chatbox').remove();
 					tab.click(action);
 				}
-
 				return tab;
 			},
-
 			// === {{{AjaxIM.}}}**{{{bar.notification(tab)}}}** ===
 			//
 			// Displays a notification on a tab. Generally, this is called when
@@ -1660,12 +1446,10 @@
 			notification: function(tab) {
 				var notify = tab.find('.imjs-notification');
 				var notify_count = notify.data('count') + 1;
-
 				notify.data('count', notify_count)
 					.html(notify.data('default-text').replace('{count}', notify_count))
 					.css('display', '');
 			},
-
 			// === //private// {{{AjaxIM.}}}**{{{bar._scrollers()}}}** ===
 			//
 			// Document me!
@@ -1674,11 +1458,9 @@
 				$('.imjs-tab').filter(function() {
 					return $(this).data('state') != 'closed'
 				}).css('display', '');
-
 				$.each(self.chats, function(username, chatbox) {
 					var tab = chatbox.data('tab');
 					if(tab.data('state') == 'closed') return true;
-
 					if(tab.position().top > $('#imjs-bar').height()) {
 						$('.imjs-scroll').css('display', '');
 						tab.css('display', 'none');
@@ -1687,35 +1469,29 @@
 						tab.css('display', '');
 					}
 				});
-
 				if(!needScrollers) {
 					$('.imjs-scroll').css('display', 'none');
 				}
-
 				if($('#imjs-scroll-left').css('display') != 'none' &&
 					$('#imjs-scroll-left').position().top > $('#imjs-bar').height()) {
 					$('#imjs-bar li.imjs-tab:visible').slice(-1).css('display', 'none');
 				}
-
 				var hiddenLeft = $('#imjs-bar li.imjs-tab:visible').slice(-1)
 					.nextAll('#imjs-bar li.imjs-tab:hidden')
 					.not('.imjs-default')
 					.filter(function() {
 						return $(this).data('state') != 'closed'
 					}).length;
-
 				var hiddenRight = $('#imjs-bar li.imjs-tab:visible').eq(0)
 					.prevAll('#imjs-bar li.imjs-tab:hidden')
 					.not('.imjs-default')
 					.filter(function() {
 						return $(this).data('state') != 'closed'
 					}).length;
-
 				$('#imjs-scroll-left').html(hiddenLeft);
 				$('#imjs-scroll-right').html(hiddenRight);
 			}
 		},
-
 		// == Comet ==
 		//
 		// Comet, or HTTP streaming, holds open a connection between the client and
@@ -1728,15 +1504,12 @@
 		comet: {
 			type: '',
 			obj: null,
-
 			onbeforeunload: null,
 			onreadystatechange: null,
-
 			iframe: function() {
 				if(/loaded|complete/i.test(this.obj.readyState))
 					throw new Error("IM server not available!");
 			},
-
 			// === {{{AjaxIM.}}}**{{{comet.connect()}}}** ===
 			//
 			// Creates and initializes the object and connection between the server
@@ -1748,7 +1521,6 @@
 			// is called.
 			connect: function() {
 				var self = _instance;
-
 				if($.browser.opera || $.browser.msie) {
 					var iframe = $('<iframe></iframe>');
 					with(iframe) {
@@ -1761,23 +1533,19 @@
 							width: '1px',
 							height: '1px'
 						});
-
 						attr('src', self.actions.poll[1]);
 						appendTo('body');
-
 						bind('readystatechange',
 							self.comet.onreadystatechange = function() { self.comet.iframe() });
 						bind('beforeunload',
 							self.comet.onbeforeunload = function() { self.comet.disconnect() });
 					}
-
 					self.comet.type = 'iframe';
 					self.comet.obj = iframe;
 				} else {
 					var xhr = new XMLHttpRequest;
 					var length = 1029;
 					var code = /^\s*<script[^>]*>parent\.(.+);<\/script><br\s*\/>$/;
-
 					xhr.open('get', self.actions.poll[1], true);
 					xhr.onreadystatechange = function(){
 						if(xhr.readyState > 2) {
@@ -1792,16 +1560,13 @@
 							// disconnected.
 						}
 					};
-
 					self.comet.type = 'xhr';
 					self.comet.obj = xhr;
-
 					addEventListener('beforeunload',
 						self.comet.beforeunload = function() { self.comet.disconnect(); }, false);
 					setTimeout(function() { xhr.send(null) }, 10);
 				}
 			},
-
 			// === {{{AjaxIM.}}}**{{{comet.disconnect()}}}** ===
 			//
 			// Disconnect from the server and destroy the connection object. This
@@ -1809,10 +1574,8 @@
 			// potential leaks and free memory.
 			disconnect: function() {
 				var self = _instance.comet;
-
 				if(!this.type || !this.obj)
 					return;
-
 				if(this.type == 'iframe') {
 					detachEvent('onreadystatechange', this.onreadystatechange);
 					detachEvent('onbeforeunload', this.onbeforeunload);
@@ -1823,14 +1586,11 @@
 					this.obj.onreadystatechange = function(){};
 					this.obj.abort();
 				}
-
 				delete this.obj;
 			}
 		}
 	})
-
 	self.bar.initialize();
-
 	if(prequeue.length) {
 		$.each(prequeue, function() {
 			var func = this[0].split('.');
@@ -1841,19 +1601,16 @@
 		});
 	}
 	});
-
 	// == Static functions and variables ==
 	//
 	// The following functions and variables are available outside of an initialized
 	// {{{AjaxIM}}} object.
-
 	// === {{{AjaxIM.}}}**{{{client}}}** ===
 	//
 	// Once {{{AjaxIM.init()}}} is called, this will be set to the active AjaxIM
 	// object. Only one AjaxIM object instance can exist at a time. This variable
 	// can and should be accessed directly.
 	AjaxIM.client = null;
-
 	// === {{{AjaxIM.}}}**{{{init(options, actions)}}}** ===
 	//
 	// Initialize the AjaxIM client object and engine. Here, you can define your
@@ -1867,11 +1624,8 @@
 			_instance = new AjaxIM(options, actions);
 			AjaxIM.client = _instance;
 		}
-
 		return _instance;
 	}
-
-
 	// === {{{AjaxIM.}}}**{{{request(url, data, successFunc, failureFunc)}}}** ===
 	//
 	// Wrapper around {{{$.jsonp}}}, the JSON-P library for jQuery, and {{{$.ajax}}},
@@ -1889,7 +1643,6 @@
 	AjaxIM.request = function(url, data, successFunc, failureFunc) {
 		if(typeof failureFunc != 'function');
 			failureFunc = function(){};
-
 		$[url[0]]({
 			'url': url[1],
 			'data': data,
@@ -1905,7 +1658,6 @@
 				failureFunc(error);
 			}
 		});
-
 		// This prevents Firefox from spinning indefinitely
 		// while it waits for a response. Why? Fuck if I know.
 		if(url[0] == 'jsonp' && $.browser.mozilla) {
@@ -1915,7 +1667,6 @@
 			});
 		}
 	};
-
 	// === {{{AjaxIM.}}}**{{{incoming(data)}}}** ===
 	//
 	// Never call this directly. It is used as a connecting function between
@@ -1927,11 +1678,9 @@
 	AjaxIM.incoming = function(data) {
 		if(!_instance)
 			return false;
-
 		if(data.length)
 			_instance._parseMessages(data);
 	}
-
 	// === {{{AjaxIM.}}}**{{{loaded}}}** ===
 	//
 	// If Ajax IM has been loaded with the im.load.js file, this function will be
@@ -1943,7 +1692,6 @@
 			delete AjaxIMLoadedFunction; // clean up the global namespace
 		}
 	};
-
 	// === {{{AjaxIM.}}}**{{{dateFormat([date,] [mask,] utc)}}}** ===
 	//
 	// Date Format 1.2.3\\
@@ -1963,7 +1711,6 @@
 	// options can be found in the
 	// [[http://blog.stevenlevithan.com/archives/date-time-format|Date Format]]
 	// documentation. If not specified, the mask defaults to {{{dateFormat.masks.default}}}.
-
 	AjaxIM.dateFormat = function () {
 		var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
 			timezone = new RegExp('\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) ' +
@@ -1976,30 +1723,24 @@
 				while (val.length < len) val = "0" + val;
 				return val;
 			};
-
 		// Regexes and supporting functions are cached through closure
 		return function (date, mask, utc) {
 			var dF = AjaxIM.dateFormat;
-
 			// You can't provide utc if you skip other args (use the "UTC:" mask prefix)
 			if (arguments.length == 1 && Object.prototype.toString.call(date) ==
 				  "[object String]" && !/\d/.test(date)) {
 				mask = date;
 				date = undefined;
 			}
-
 			// Passing date through Date applies Date.parse, if necessary
 			date = date ? new Date(date) : new Date;
 			if (isNaN(date)) throw SyntaxError("invalid date");
-
 			mask = String(dF.masks[mask] || mask || dF.masks["default"]);
-
 			// Allow setting the utc argument via the mask
 			if (mask.slice(0, 4) == "UTC:") {
 				mask = mask.slice(4);
 				utc = true;
 			}
-
 			var _ = utc ? "getUTC" : "get",
 				d = date[_ + "Date"](),
 				D = date[_ + "Day"](),
@@ -2044,13 +1785,11 @@
 							0 :
 							(d % 100 - d % 10 != 10) * d % 10]
 				};
-
 			return mask.replace(token, function ($0) {
 				return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
 			});
 		};
 	}();
-
 	// Some common format strings
 	AjaxIM.dateFormat.masks = {
 		"default":      "ddd mmm dd yyyy HH:MM:ss",
@@ -2066,7 +1805,6 @@
 		isoDateTime:    "yyyy-mm-dd'T'HH:MM:ss",
 		isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
 	};
-
 	// === {{{AjaxIM.}}}**{{{i18n}}}** ===
 	//
 	// Text strings used by Ajax IM. Should you want to translate Ajax IM into
@@ -2084,17 +1822,13 @@
 			"January", "February", "March", "April", "May", "June", "July", "August", "September",
 			"October", "November", "December"
 		],
-
 		chatOffline: '%s signed off.',
 		chatAvailable: '%s became available.',
 		chatAway: '%s went away.',
-
 		notConnected: 'You are currently not connected or the server is not available. ' +
 					  'Please ensure that you are signed in and try again.',
 		notConnectedTip: 'You are currently not connected.',
-
 		authInvalid: 'Invalid username or password.',
-
 		registerPasswordLength: 'Passwords must be more than 4 characters in length.',
 		registerUsernameLength: 'Usernames must be more than 2 characters in length and ' +
 						' contain only A-Z, a-z, 0-9, underscores (_) and periods (.).',
