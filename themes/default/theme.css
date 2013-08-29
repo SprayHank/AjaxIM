@@ -222,7 +222,7 @@ ul#imjs-bar > li.imjs-selected {
 	text-shadow: 0 1px 0 #EAEAEA;
 	background: #FFFFFF;
 	color: #000000;
-	margin: -1px 0 0;
+	margin: 0px 0 0;
 	border: solid #444444;
 	border-width: 0 1px 1px 1px;
 	width: 160px;
