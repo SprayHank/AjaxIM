@@ -470,30 +470,26 @@
 				// hash password before sending it to the server
 				password = $.md5(password);
 				// authenticate
-				AjaxIM.request(
-					this.actions.login,
-					{'username': username, 'password': password},
-					function(auth) {
-						if(auth.r == 'logged in') {
-							self.username = ('u' in auth ? auth.u : username);
-							if(self.settings.storageMethod)
-								self.storeKey = [self.storageBrowserKey, self.username, ''].join('-');
-							var existing = self.cookies.get(self.settings.cookieName);
-							self.storage();
-							// Begin the session
-							$.each(auth.f, function() {
-								self.friends[this.u] = {status: [this.s, ''], group: this.g};
-							});
-							self._session(self.friends);
-							self._storeFriends();
-							$(self).trigger('loginSuccessful', [auth]);
-							return auth;
-						} else {
-							$(self).trigger('loginError', [auth]);
-						}
-						return false;
+				AjaxIM.request(this.actions.login, {'username': username, 'password': password}, function(auth) {
+					if(auth.r == 'logged in') {
+						self.username = ('u' in auth ? auth.u : username);
+						if(self.settings.storageMethod)
+							self.storeKey = [self.storageBrowserKey, self.username, ''].join('-');
+						var existing = self.cookies.get(self.settings.cookieName);
+						self.storage();
+						// Begin the session
+						$.each(auth.f, function() {
+							self.friends[this.u] = {status: [this.s, ''], group: this.g};
+						});
+						self._session(self.friends);
+						self._storeFriends();
+						$(self).trigger('loginSuccessful', [auth]);
+						return auth;
+					} else {
+						$(self).trigger('loginError', [auth]);
 					}
-				);
+					return false;
+				});
 			},
 			// === {{{AjaxIM.}}}**{{{logout()}}}** ===
 			//
@@ -1099,13 +1095,12 @@
 			_friendUpdate: function(friend, status, statusMessage) {
 				// add friend to buddylist, update their status, etc.
 				var status_name = 'available';
-				$.each(this.statuses,
-					function(key, val) {
-						if(status == val) {
-							status_name = key;
-							return false;
-						}
-					});
+				$.each(this.statuses, function(key, val) {
+					if(status == val) {
+						status_name = key;
+						return false;
+					}
+				});
 				if(this.chats[friend]) {
 					var tab = this.chats[friend].data('tab');
 					var tab_class = 'imjs-tab';
