@@ -168,7 +168,7 @@
 					}
 				});
 				if(this.settings.storageMethod == 'auto') {
-					$.each(['ie', 'html5', 'local', 'flash'], function() {
+					$.each(['ie', 'html5', 'local', 'session', 'flash'], function() {
 						if($.jStore.Availability[this]()) {
 							self.settings.storageMethod = this;
 							return false;
